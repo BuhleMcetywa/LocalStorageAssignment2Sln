@@ -1,27 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="LocalStorageAssignment2.MainPage">
+             xmlns:local="clr-namespace:LocalStorageAssignment2.Models"
+             x:Class="LocalStorageAssignment2.MainPage" x:DataType="local:Profile">
 
     <VerticalStackLayout>
-        
-            
-        <Label Text="Name"/>
-        <Entry x:Name="NameEntry" />
 
-        <Label Text="Surname" />
-        <Entry x:Name="SurnameEntry" />
+        <Label Text="Log in" FontSize="24" HorizontalOptions="CenterAndExpand" Margin="0,20,0,40"/>
 
-        <Label Text="Email Address" />
-        <Entry x:Name="EmailEntry" />
-
-        <Label Text="Bio" />
-        <Editor x:Name="BioEditor" />
-
-        <Button Text="Save" Clicked="OnSaveClicked" />
+        <Label Text="Name" FontAttributes="Bold"/>
+        <Entry Text="{Binding Name}" Placeholder="Name"  />
+        <Label Text="Surname" FontAttributes="Bold" />
+        <Entry Text="{Binding Surname}" Placeholder="Surname" />
+        <Label Text="Email Address" FontAttributes="Bold"/>
+        <Entry  Text="{Binding EmailAddress}" Placeholder="Email"/>
+        <Label Text="Bio" FontAttributes="Bold" />
+        <Editor x:Name="BioEditor"  Text="{Binding Bio}"  Placeholder="Bio" />
         <Image x:Name="profileImage" HeightRequest="150" WidthRequest="150"/>
-            <Button Text="Select Picture" Clicked="OnSelectPictureClicked"/>
-        
+        <HorizontalStackLayout>
+            <Button Text="Save" Clicked="OnSaveClicked" BackgroundColor="#78B221" WidthRequest="200" />
+            <Button Text="Add Picture" Clicked="OnSelectPictureClicked" BackgroundColor="#78B221" WidthRequest="200"/>
+        </HorizontalStackLayout>
+
     </VerticalStackLayout>
 
 </ContentPage>
+    
+    
+    
+    
