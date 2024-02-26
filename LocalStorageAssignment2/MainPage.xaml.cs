@@ -7,54 +7,65 @@ namespace LocalStorageAssignment2
     public partial class MainPage : ContentPage
     {
         private const string FilePath = "profile.json";
+        private Profile _profile;
+
+        public Profile MyProfile { get { return _profile; }
+            set { _profile = value;
+
+                OnPropertyChanged();
+            
+            } 
+        } 
+
         public MainPage()
         {
             InitializeComponent();
+            _profile = new Profile();
+            LoadProfileData();
+            BindingContext = MyProfile;
+
         }
 
-        private async void OnSaveClicked(object sender, EventArgs e)
+        protected override async void OnDisappearing()
         {
-            var profile = new Profile();
+            base.OnDisappearing();
+            await SaveProfileAsync(_profile);
+        }
 
-            {
-                profile.Name = NameEntry.Text;
-                profile.Surname = SurnameEntry.Text;
-                profile.EmailAddress = EmailEntry.Text;
-                profile.Bio = BioEditor.Text;
-            };
+        private async void LoadProfileData() 
 
+        {
             try
             {
-                var json = JsonConvert.SerializeObject(profile);
-                var file = Path.Combine(FileSystem.AppDataDirectory, FilePath);
-                await File.WriteAllTextAsync(file, json);
-                await DisplayAlert("Success", "Profile saved successfully", "OK");
+                var file = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "profile.json");
+
+
+                if (File.Exists(file))
+                {
+                    var json = File.ReadAllText(file);
+                    MyProfile = JsonConvert.DeserializeObject<Profile>(json);
+                }
+
+                else
+                {
+                    MyProfile = new Profile();
+                }
 
             }
-
-
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to save profile: {ex.Message}", "OK");
-
+                DisplayAlert("Error", $"Failed to load profile: {ex.Message}", "OK");
             }
         }
 
-        protected override async void OnAppearing()
+        private async Task SaveProfileAsync(Profile profile)
         {
-            base.OnAppearing();
-
-            var profile = await LoadProfile();
-            if (profile != null)
-            {
-                profile.Name = NameEntry.Text;
-                profile.Surname = SurnameEntry.Text;
-                profile.EmailAddress = EmailEntry.Text;
-                profile.Bio = BioEditor.Text;
-
-            }
+            var json = JsonConvert.SerializeObject(profile);
+            var filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "profile.json");
+            await File.WriteAllTextAsync(filePath, json);
         }
-        private async Task<Profile> LoadProfile()
+
+        private async Task<Profile> LoadProfileAsync()
         {
             var file = Path.Combine(FileSystem.AppDataDirectory, FilePath);
             if (File.Exists(file))
@@ -67,6 +78,7 @@ namespace LocalStorageAssignment2
             return null;
         }
 
+       
         private async void OnSelectPictureClicked(object sender, EventArgs e)
         {
             try
@@ -76,15 +88,46 @@ namespace LocalStorageAssignment2
                 {
                     profileImage.Source = ImageSource.FromStream(() => result.OpenReadAsync().Result);
 
-                    (BindingContext as Profile).PicturePath = result.FullPath;
+					
+
+					(BindingContext as Profile).PicturePath = result.FullPath;
                 }
             }
 
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to select picture: {ex.Message}", "Ok");
+                
+
+            }
+
+        }
+
+       
+        private async void OnSaveClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (MyProfile != null)
+                {
+                 
+                    await SaveProfileAsync(MyProfile);
+
+                    await DisplayAlert("Success", "Profile saved successfully.", "OK");
+                }
+                else
+                {
+                    // Handle the case where the profile is null
+                    await DisplayAlert("Error", "Profile is null.", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to save profile: {ex.Message}", "OK");
             }
         }
+
+
+
     }
 
 
